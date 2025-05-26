@@ -1,4 +1,4 @@
-import {useRoute} from '@react-navigation/native';
+import {useRoute, useNavigation, StackActions} from '@react-navigation/native';
 import React, {useCallback, useMemo} from 'react';
 import {View} from 'react-native';
 import type {OnyxEntry} from 'react-native-onyx';
@@ -28,10 +28,11 @@ import * as ReportUtils from '@src/libs/ReportUtils';
 import * as TransactionUtils from '@src/libs/TransactionUtils';
 import {getTransactionID} from '@src/libs/TransactionUtils';
 import ONYXKEYS from '@src/ONYXKEYS';
-import type SCREENS from '@src/SCREENS';
+import SCREENS from '@src/SCREENS';
 import type {Transaction} from '@src/types/onyx';
 import {isEmptyObject} from '@src/types/utils/EmptyObject';
 import isLoadingOnyxValue from '@src/types/utils/isLoadingOnyxValue';
+import CONST from '@src/CONST';
 
 function Confirmation() {
     const styles = useThemeStyles();
@@ -39,6 +40,7 @@ function Confirmation() {
     const {canUseTableReportView} = usePermissions();
     const route = useRoute<PlatformStackRouteProp<TransactionDuplicateNavigatorParamList, typeof SCREENS.TRANSACTION_DUPLICATE.REVIEW>>();
     const currentUserPersonalDetails = useCurrentUserPersonalDetails();
+    const navigation = useNavigation();
     const [reviewDuplicates, reviewDuplicatesResult] = useOnyx(ONYXKEYS.REVIEW_DUPLICATES, {canBeMissing: true});
     const transaction = useMemo(() => TransactionUtils.buildNewTransactionAfterReviewingDuplicates(reviewDuplicates), [reviewDuplicates]);
     const transactionID = TransactionUtils.getTransactionID(route.params.threadReportID);
@@ -66,8 +68,13 @@ function Confirmation() {
         if (!reportAction?.childReportID) {
             return;
         }
-        Navigation.dismissModalWithReport({reportID: reportAction.childReportID});
-    }, [reportAction?.childReportID, transactionsMergeParams, canUseTableReportView]);
+        navigation.dispatch({type: CONST.NAVIGATION.ACTION_TYPE.DISMISS_MODAL});
+        navigation.dispatch(
+            StackActions.replace(SCREENS.REPORT, {
+                reportID: reportAction.childReportID,
+            }),
+        );
+    }, [reportAction?.childReportID, transactionsMergeParams, canUseTableReportView, navigation]);
 
     const resolveDuplicates = useCallback(() => {
         IOU.resolveDuplicates(transactionsMergeParams);
@@ -79,8 +86,13 @@ function Confirmation() {
             Navigation.dismissModal();
             return;
         }
-        Navigation.dismissModalWithReport({reportID: reportAction.childReportID});
-    }, [transactionsMergeParams, reportAction?.childReportID, canUseTableReportView]);
+        navigation.dispatch({type: CONST.NAVIGATION.ACTION_TYPE.DISMISS_MODAL});
+        navigation.dispatch(
+            StackActions.replace(SCREENS.REPORT, {
+                reportID: reportAction.childReportID,
+            }),
+        );
+    }, [transactionsMergeParams, reportAction?.childReportID, canUseTableReportView, navigation]);
 
     const contextValue = useMemo(
         () => ({
