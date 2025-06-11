@@ -255,7 +255,7 @@ function WorkspaceInvitePage({route, policy}: WorkspaceInvitePageProps) {
             invitedEmailsToAccountIDs[login] = Number(accountID);
         });
         setWorkspaceInviteMembersDraft(route.params.policyID, invitedEmailsToAccountIDs);
-        Navigation.navigate(ROUTES.WORKSPACE_INVITE_MESSAGE.getRoute(route.params.policyID, Navigation.getActiveRoute()));
+        Navigation.navigate(ROUTES.WORKSPACE_INVITE_MESSAGE.getRoute(route.params.policyID));
     }, [route.params.policyID, selectedOptions]);
 
     const [policyName, shouldShowAlertPrompt] = useMemo(() => [policy?.name ?? '', !isEmptyObject(policy?.errors) || !!policy?.alertMessage], [policy]);
