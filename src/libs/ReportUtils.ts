@@ -4345,8 +4345,10 @@ function getReasonAndReportActionThatRequiresAttention(
     const hasOnlyPendingTransactions = transactions.length > 0 && transactions.every((t) => isExpensifyCardTransaction(t) && isPending(t));
 
     // Has a child report that is awaiting action (e.g. approve, pay, add bank account) from current user
+    const isTripRoomWithTransactions = isTripRoom(optionOrReport) && (optionOrReport.transactionCount ?? 0) > 0;
+
     if (
-        (optionOrReport.hasOutstandingChildRequest === true || iouReportActionToApproveOrPay?.reportActionID) &&
+        ((optionOrReport.hasOutstandingChildRequest === true && (!isTripRoom(optionOrReport) || isTripRoomWithTransactions)) || iouReportActionToApproveOrPay?.reportActionID) &&
         (policy?.reimbursementChoice !== CONST.POLICY.REIMBURSEMENT_CHOICES.REIMBURSEMENT_NO || !hasOnlyPendingTransactions)
     ) {
         return {
