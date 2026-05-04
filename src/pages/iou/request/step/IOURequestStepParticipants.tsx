@@ -8,7 +8,7 @@ import useThemeStyles from '@hooks/useThemeStyles';
 import {isMovingTransactionFromTrackExpense as isMovingTransactionFromTrackExpenseIOUUtils, navigateToStartMoneyRequestStep} from '@libs/IOUUtils';
 import Navigation from '@libs/Navigation/Navigation';
 import {endSpan} from '@libs/telemetry/activeSpans';
-import {getRequestType, hasRoute, isCorporateCardTransaction, isDistanceRequest, isPerDiemRequest, isTimeRequest as isTimeRequestUtil} from '@libs/TransactionUtils';
+import {getRequestType, hasRoute, isCorporateCardTransaction, isDistanceRequest, isFromCreditCardImport, isPerDiemRequest, isTimeRequest as isTimeRequestUtil} from '@libs/TransactionUtils';
 import MoneyRequestParticipantsSelector from '@pages/iou/request/MoneyRequestParticipantsSelector';
 import {navigateToStartStepIfScanFileCannotBeRead} from '@userActions/IOU/Receipt';
 import CONST from '@src/CONST';
@@ -41,7 +41,7 @@ function IOURequestStepParticipants({
     const isMovingTransactionFromTrackExpense = isMovingTransactionFromTrackExpenseIOUUtils(action);
     const isPerDiem = isPerDiemRequest(initialTransaction);
     const isTime = isTimeRequestUtil(initialTransaction);
-    const isCorporateCard = isCorporateCardTransaction(initialTransaction);
+    const isCorporateCard = action === CONST.IOU.ACTION.SUBMIT ? isFromCreditCardImport(initialTransaction) : isCorporateCardTransaction(initialTransaction);
 
     let headerTitle = translate('iou.chooseRecipient');
     if (action === CONST.IOU.ACTION.CATEGORIZE) {
