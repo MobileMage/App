@@ -156,7 +156,7 @@ function buildOnyxDataForInvoice(
                 lastMessageText: getReportActionText(iou.action),
                 lastMessageHtml: getReportActionHtml(iou.action),
                 pendingFields: {
-                    createChat: CONST.RED_BRICK_ROAD_PENDING_ACTION.ADD,
+                    createReport: CONST.RED_BRICK_ROAD_PENDING_ACTION.ADD,
                 },
             },
         },
@@ -440,7 +440,7 @@ function buildOnyxDataForInvoice(
             value: {
                 pendingFields: null,
                 errorFields: {
-                    createChat: getMicroSecondOnyxErrorWithTranslationKey('report.genericCreateReportFailureMessage'),
+                    createReport: getMicroSecondOnyxErrorWithTranslationKey('report.genericCreateReportFailureMessage'),
                 },
             },
         },
