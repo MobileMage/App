@@ -262,7 +262,8 @@ export default function linkTo(navigation: NavigationContainerRef<RootNavigatorP
     if (
         action.type === CONST.NAVIGATION.ACTION_TYPE.NAVIGATE &&
         action.payload.name === NAVIGATORS.TAB_NAVIGATOR &&
-        !isFullScreenName((minimalAction.payload as {name?: string} | undefined)?.name)
+        !isFullScreenName((minimalAction.payload as {name?: string} | undefined)?.name) &&
+        !isNavigatingToReportActionWithinSameReport(currentFocusedRoute, focusedRouteFromPath)
     ) {
         minimalAction.type = CONST.NAVIGATION.ACTION_TYPE.PUSH;
     }
