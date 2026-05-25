@@ -462,6 +462,16 @@ function IOURequestStepConfirmation({
         // (e.g. Invoice tab when submitting an Expense) so the correct tab is revealed on dismiss.
         const searchType = iouType === CONST.IOU.TYPE.INVOICE ? CONST.SEARCH.DATA_TYPES.INVOICE : CONST.SEARCH.DATA_TYPES.EXPENSE;
         const isSearchOnTopWithDifferentType = isSearchTopmostFullScreenRoute() && getCurrentSearchQueryJSON()?.type !== searchType;
+        const shouldPreInsertSearch = isFromGlobalCreate && canPreInsertSearch && !isReportTopmostSplitNavigator() && (!isSearchTopmostFullScreenRoute() || isSearchOnTopWithDifferentType);
+
+        // Report pre-insert: dismiss modal flows that open an existing report after submit.
+        // Skip when the destination is already the topmost fullscreen report to avoid
+        // pushing a duplicate route (which would require an extra back press).
+
+        // Only eligible when search pre-insert didn't win, and the flow ends at a report (not Search).
+        // When Search is the topmost fullscreen and there's no report context (e.g. QAB from Spend tab),
+        // pre-inserting a report is wrong - the user should stay on Search after submission.
+        const canUseReportPreInsert = !shouldPreInsertSearch && (isReportTopmostSplitNavigator() || (!isFromGlobalCreate && !isSearchTopmostFullScreenRoute()));
 
         // RHP has its own dismiss handler; pre-inserting under it would break the stack.
         const isOutsideRHP = !isReportOpenInRHP(navigationRef.getRootState());
@@ -471,19 +481,6 @@ function IOURequestStepConfirmation({
 
         // The report must be in Onyx so the pre-inserted screen can render immediately.
         const isDestinationReportLoaded = !!destinationReportID && !!getReportOrDraftReport(destinationReportID)?.reportID;
-
-        // Prefer destination report over Search when a valid destination exists (e.g. QAB to a specific chat).
-        // Only use Search pre-insert when there's no valid destination or it's not yet loaded.
-        const shouldPreInsertSearch = isFromGlobalCreate && canPreInsertSearch && !isReportTopmostSplitNavigator() && (!isSearchTopmostFullScreenRoute() || isSearchOnTopWithDifferentType) && (!hasValidDestination || !isDestinationReportLoaded);
-
-        // Report pre-insert: dismiss modal flows that open an existing report after submit.
-        // Skip when the destination is already the topmost fullscreen report to avoid
-        // pushing a duplicate route (which would require an extra back press).
-
-        // Only eligible when search pre-insert didn't win, and the flow ends at a report (not Search).
-        // When Search is the topmost fullscreen and there's no report context (e.g. QAB from Spend tab),
-        // pre-inserting a report is wrong - the user should stay on Search after submission.
-        const canUseReportPreInsert = !shouldPreInsertSearch && (isReportTopmostSplitNavigator() || !isSearchTopmostFullScreenRoute());
 
         const shouldPreInsertReport = canUseReportPreInsert && isOutsideRHP && hasValidDestination && isDestinationReportLoaded;
 
