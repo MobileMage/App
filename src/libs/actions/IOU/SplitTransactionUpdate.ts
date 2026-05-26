@@ -58,6 +58,7 @@ import {getAllReports, getMoneyRequestPolicyTags, getPolicyTagsData} from './ind
 import {getMoneyRequestParticipantsFromReport} from './MoneyRequest';
 import {getMoneyRequestInformation, getReportPreviewAction} from './MoneyRequestBuilder';
 import type {BuildOnyxDataForMoneyRequestKeys, MoneyRequestInformationParams} from './MoneyRequestBuilder';
+import {addPendingNewTransactionIDs} from './PendingNewTransactions';
 import {getDeleteTrackExpenseInformation} from './TrackExpense';
 import {getUpdateMoneyRequestParams} from './UpdateMoneyRequest';
 import type {UpdateMoneyRequestDataKeys} from './UpdateMoneyRequest';
@@ -1377,6 +1378,18 @@ function updateSplitTransactionsFromSplitExpensesFlow(params: UpdateSplitTransac
     }
 
     updateSplitTransactions({...params, isFromSplitExpensesFlow: true});
+
+    // Mark the new splits as pending so MoneyRequestReportPreview can flash them; reverse splits restore the parent and don't need a highlight.
+    if (!isReverseSplitOperation) {
+        const chatReportID = params.expenseReport?.chatReportID;
+        for (const splitExpense of splitExpenses) {
+            if (!splitExpense.transactionID || !chatReportID) {
+                continue;
+            }
+            addPendingNewTransactionIDs(chatReportID, splitExpense.transactionID);
+        }
+    }
+
     const isSearchPageTopmostFullScreenRoute = isSearchTopmostFullScreenRoute();
     const transactionThreadReportID = params.firstIOU?.childReportID;
     const transactionThreadReportScreen = Navigation.getReportRouteByID(transactionThreadReportID);
