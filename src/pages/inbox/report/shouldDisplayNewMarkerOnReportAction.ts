@@ -69,9 +69,12 @@ const shouldDisplayNewMarkerOnReportAction = ({
         return action?.pendingAction === CONST.RED_BRICK_ROAD_PENDING_ACTION.ADD;
     };
 
-    // If no unread marker exists, don't set an unread marker for newly added messages from the current user.
+    // If no unread marker exists, don't set an unread marker for optimistic messages from the current user.
+    // We only suppress the marker for actions the user actively created (optimistic/pending), not for
+    // server-generated actions (e.g. EXPORTCSV) that arrive via Pusher while the user may be away.
     const isFromCurrentUser = currentUserAccountID === (isReportPreviewAction(message) ? message.childLastActorAccountID : message.actorAccountID);
     const isNewMessage = !prevSortedVisibleReportActionsObjects[message.reportActionID];
+    const isCurrentlyOptimistic = isPendingAdd(message) || !!message.isOptimisticAction;
 
     // The unread marker will show if the action's `created` time is later than `unreadMarkerTime`.
     // The `unreadMarkerTime` has already been updated to match the optimistic action created time,
@@ -80,7 +83,7 @@ const shouldDisplayNewMarkerOnReportAction = ({
     const isPreviouslyOptimistic =
         (isPendingAdd(prevSortedVisibleReportActionsObjects[message.reportActionID]) && !isPendingAdd(message)) ||
         (!!prevSortedVisibleReportActionsObjects[message.reportActionID]?.isOptimisticAction && !message.isOptimisticAction);
-    const shouldIgnoreUnreadForCurrentUserMessage = !prevUnreadMarkerReportActionID && isFromCurrentUser && (isNewMessage || isPreviouslyOptimistic);
+    const shouldIgnoreUnreadForCurrentUserMessage = !prevUnreadMarkerReportActionID && isFromCurrentUser && (isCurrentlyOptimistic || isPreviouslyOptimistic);
 
     if (isFromCurrentUser) {
         return !shouldIgnoreUnreadForCurrentUserMessage;
