@@ -161,7 +161,7 @@ function updateSplitTransactions({
     const splitExpensesTotal = transactionData?.splitExpensesTotal ?? 0;
 
     const isCreationOfSplits = originalChildTransactions.length === 0;
-    const hasEditableSplitExpensesLeft = splitExpenses.some((expense) => (expense.statusNum ?? 0) < CONST.REPORT.STATUS_NUM.SUBMITTED);
+    const hasEditableSplitExpensesLeft = splitExpenses.some((expense) => (expense.statusNum ?? 0) < CONST.REPORT.STATUS_NUM.CLOSED);
     // Don't revert split if there are orphaned children (reportID '0') - they're still part of the split
     const isReverseSplitOperation =
         splitExpenses.length === 1 && originalChildTransactions.length > 0 && hasEditableSplitExpensesLeft && allChildTransactions.length === originalChildTransactions.length;
@@ -1364,7 +1364,7 @@ function updateSplitTransactionsFromSplitExpensesFlow(params: UpdateSplitTransac
     const originalTransactionID = params.transactionData?.originalTransactionID ?? CONST.IOU.OPTIMISTIC_TRANSACTION_ID;
     const allChildTransactions = getChildTransactions(params.allTransactionsList, params.allReportsList, originalTransactionID, true);
     const originalChildTransactions = allChildTransactions.filter((tx) => tx?.reportID !== CONST.REPORT.UNREPORTED_REPORT_ID);
-    const hasEditableSplitExpensesLeft = splitExpenses.some((expense) => (expense.statusNum ?? 0) < CONST.REPORT.STATUS_NUM.SUBMITTED);
+    const hasEditableSplitExpensesLeft = splitExpenses.some((expense) => (expense.statusNum ?? 0) < CONST.REPORT.STATUS_NUM.CLOSED);
     const isReverseSplitOperation =
         splitExpenses.length === 1 && originalChildTransactions.length > 0 && hasEditableSplitExpensesLeft && allChildTransactions.length === originalChildTransactions.length;
     const expenseReportID = params.expenseReport?.reportID;

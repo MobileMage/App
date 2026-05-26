@@ -198,7 +198,7 @@ function useDeleteTransactions({report, reportActions, policy}: UseDeleteTransac
 
                 const hasEditableSplitExpensesLeft = childTransactions.some((childTransaction) => {
                     const currentReport = allReports?.[`${ONYXKEYS.COLLECTION.REPORT}${childTransaction?.reportID}`];
-                    return (currentReport?.statusNum ?? 0) < CONST.REPORT.STATUS_NUM.SUBMITTED;
+                    return (currentReport?.statusNum ?? 0) < CONST.REPORT.STATUS_NUM.CLOSED;
                 });
 
                 if (!hasEditableSplitExpensesLeft) {
