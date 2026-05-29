@@ -2768,6 +2768,11 @@ const ROUTES = {
         getRoute: (params: WorkspaceCompanyCardsAssignCardParams) =>
             `workspaces/${params.policyID}/company-cards/${encodeURIComponent(params.feed)}/assign-card/${encodeURIComponent(params.cardID)}/transaction-start-date` as const,
     },
+    WORKSPACE_COMPANY_CARDS_ASSIGN_CARD_ASSIGNMENT_DATE: {
+        route: 'workspaces/:policyID/company-cards/:feed/assign-card/:cardID/assignment-date',
+        getRoute: (params: WorkspaceCompanyCardsAssignCardParams) =>
+            `workspaces/${params.policyID}/company-cards/${encodeURIComponent(params.feed)}/assign-card/${encodeURIComponent(params.cardID)}/assignment-date` as const,
+    },
     WORKSPACE_COMPANY_CARDS_ASSIGN_CARD_CARD_NAME: {
         route: 'workspaces/:policyID/company-cards/:feed/assign-card/:cardID/card-name',
         getRoute: (params: WorkspaceCompanyCardsAssignCardParams) =>

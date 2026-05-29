@@ -50,6 +50,9 @@ type AssignCardData = {
     /** An option based on which the transaction start date is chosen */
     dateOption: string;
 
+    /** The date on which the card assignment takes effect. Empty/today means assign immediately; a future date schedules the assignment. */
+    assignmentDate?: string;
+
     /** Bank ID for Plaid */
     institutionId?: CardFeedWithNumber;
 

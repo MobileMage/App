@@ -5466,6 +5466,8 @@ const translations = {
             editStartDateDescription: "Choose a new transaction start date. We'll sync all transactions from that date onwards, excluding those we already imported.",
             fromTheBeginning: 'From the beginning',
             customStartDate: 'Custom start date',
+            assignmentDate: 'Assignment date',
+            assignmentDateDescription: "Choose when this card should be assigned. It will become active on the cardholder's account on this date.",
             customCloseDate: 'Custom close date',
             letsDoubleCheck: "Let's double check that everything looks right.",
             confirmationDescription: "We'll begin importing transactions immediately.",

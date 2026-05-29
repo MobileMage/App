@@ -1,3 +1,4 @@
+import {format} from 'date-fns';
 import {Str} from 'expensify-common';
 import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
@@ -137,6 +138,11 @@ function ConfirmationStep({route}: ConfirmationStepProps) {
                     Navigation.navigate(ROUTES.WORKSPACE_COMPANY_CARDS_ASSIGN_CARD_TRANSACTION_START_DATE.getRoute(routeParams));
                 });
                 break;
+            case CONST.COMPANY_CARD.STEP.ASSIGNMENT_DATE:
+                Navigation.setNavigationActionToMicrotaskQueue(() => {
+                    Navigation.navigate(ROUTES.WORKSPACE_COMPANY_CARDS_ASSIGN_CARD_ASSIGNMENT_DATE.getRoute(routeParams));
+                });
+                break;
             case CONST.COMPANY_CARD.STEP.CARD_NAME:
                 Navigation.navigate(ROUTES.WORKSPACE_COMPANY_CARDS_ASSIGN_CARD_CARD_NAME.getRoute(routeParams));
                 break;
@@ -195,6 +201,12 @@ function ConfirmationStep({route}: ConfirmationStepProps) {
                     }
                     shouldShowRightIcon
                     onPress={() => editStep(CONST.COMPANY_CARD.STEP.TRANSACTION_START_DATE)}
+                />
+                <MenuItemWithTopDescription
+                    description={translate('workspace.companyCards.assignmentDate')}
+                    title={cardToAssign?.assignmentDate ? cardToAssign.assignmentDate : format(new Date(), CONST.DATE.FNS_FORMAT_STRING)}
+                    shouldShowRightIcon
+                    onPress={() => editStep(CONST.COMPANY_CARD.STEP.ASSIGNMENT_DATE)}
                 />
                 <MenuItemWithTopDescription
                     description={translate('workspace.companyCards.cardName')}

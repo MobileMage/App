@@ -4258,6 +4258,7 @@ const CONST = {
             CARD: 'Card',
             CARD_NAME: 'CardName',
             TRANSACTION_START_DATE: 'TransactionStartDate',
+            ASSIGNMENT_DATE: 'AssignmentDate',
             CONFIRMATION: 'Confirmation',
             INVITE_NEW_MEMBER: 'InviteNewMember',
         },

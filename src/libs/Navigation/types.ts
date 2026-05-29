@@ -1359,6 +1359,11 @@ type SettingsNavigatorParamList = {
         feed: CompanyCardFeedWithDomainID;
         cardID: string;
     };
+    [SCREENS.WORKSPACE.COMPANY_CARDS_ASSIGN_CARD_ASSIGNMENT_DATE]: {
+        policyID: string;
+        feed: CompanyCardFeedWithDomainID;
+        cardID: string;
+    };
     [SCREENS.WORKSPACE.COMPANY_CARDS_ASSIGN_CARD_CARD_NAME]: {
         policyID: string;
         feed: CompanyCardFeedWithDomainID;

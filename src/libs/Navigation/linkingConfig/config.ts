@@ -954,6 +954,9 @@ const config: LinkingOptions<RootNavigatorParamList>['config'] = {
                         [SCREENS.WORKSPACE.COMPANY_CARDS_ASSIGN_CARD_TRANSACTION_START_DATE]: {
                             path: ROUTES.WORKSPACE_COMPANY_CARDS_ASSIGN_CARD_TRANSACTION_START_DATE.route,
                         },
+                        [SCREENS.WORKSPACE.COMPANY_CARDS_ASSIGN_CARD_ASSIGNMENT_DATE]: {
+                            path: ROUTES.WORKSPACE_COMPANY_CARDS_ASSIGN_CARD_ASSIGNMENT_DATE.route,
+                        },
                         [SCREENS.WORKSPACE.COMPANY_CARDS_ASSIGN_CARD_CARD_NAME]: {
                             path: ROUTES.WORKSPACE_COMPANY_CARDS_ASSIGN_CARD_CARD_NAME.route,
                         },
