@@ -1496,15 +1496,13 @@ function completeTestDriveTask(
     shouldUpdateSelfTourViewedOnlyLocally = false,
 ) {
     setSelfTourViewed(shouldUpdateSelfTourViewedOnlyLocally);
-    getFinishOnboardingTaskOnyxData(
-        viewTourTaskReport,
-        viewTourTaskParentReport,
-        isViewTourTaskParentReportArchived,
-        currentUserAccountID,
-        hasOutstandingChildTask,
-        parentReportAction,
-        delegateEmail,
-    );
+    if (
+        viewTourTaskReport &&
+        canActionTask(viewTourTaskReport, parentReportAction, currentUserAccountID, viewTourTaskParentReport, isViewTourTaskParentReportArchived) &&
+        (viewTourTaskReport.stateNum !== CONST.REPORT.STATE_NUM.APPROVED || viewTourTaskReport.statusNum !== CONST.REPORT.STATUS_NUM.APPROVED)
+    ) {
+        completeTask(viewTourTaskReport, viewTourTaskParentReport?.hasOutstandingChildTask ?? false, hasOutstandingChildTask, parentReportAction, delegateEmail, undefined, false);
+    }
 }
 
 export {

@@ -54,12 +54,18 @@ function TestDriveDemo() {
     });
     const hasCalledOpenReportRef = useRef(false);
 
+    const viewTourTaskReportID = introSelected?.[CONST.ONBOARDING_TASK_TYPE.VIEW_TOUR];
+
     useEffect(() => {
         if (hasSeenTour) {
             return;
         }
+        if (viewTourTaskReportID && !viewTourTaskReport) {
+            // Task report ID exists in introSelected but the report hasn't loaded from Onyx yet — wait for it.
+            return;
+        }
         if (!viewTourTaskReport) {
-            // Fallback for accounts with no viewTour task — otherwise selfTourViewed never gets set.
+            // Genuinely no viewTour task for this account — set selfTourViewed so the demo can still dismiss.
             setSelfTourViewed();
             if (conciergeReportID && !hasCalledOpenReportRef.current) {
                 hasCalledOpenReportRef.current = true;
@@ -83,6 +89,7 @@ function TestDriveDemo() {
         );
     }, [
         hasSeenTour,
+        viewTourTaskReportID,
         viewTourTaskReport,
         viewTourTaskParentReport,
         isViewTourTaskParentReportArchived,
