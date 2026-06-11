@@ -185,7 +185,11 @@ function DynamicTwoFactorAuthPage() {
                                 setError('');
                                 setCodesAreCopied();
                                 announceStatus(translate('fileDownload.success.title'));
-                                Navigation.navigate(createDynamicRoute(DYNAMIC_ROUTES.TWO_FACTOR_AUTH_VERIFY.path, backPath), {forceReplace: true});
+                                // Use default PUSH navigation. A REPLACE (forceReplace) makes react-navigation's web linking layer
+                                // call history.go(-1) before pushing the new URL; if the browser popstate is delayed past
+                                // createMemoryHistory's 100ms safety timeout (e.g. the macOS Chrome save dialog blurs the tab), the
+                                // delayed event is treated as a user back and resetRoots to the cached pre-2FA state, unmounting the RHP.
+                                Navigation.navigate(createDynamicRoute(DYNAMIC_ROUTES.TWO_FACTOR_AUTH_VERIFY.path, backPath));
                             }}
                         />
                     )}
