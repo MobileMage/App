@@ -19,7 +19,6 @@ import {READ_COMMANDS, SIDE_EFFECT_REQUEST_COMMANDS, WRITE_COMMANDS} from '@libs
 import * as CardUtils from '@libs/CardUtils';
 import {getCardFeedWithDomainID} from '@libs/CardUtils';
 import * as ErrorUtils from '@libs/ErrorUtils';
-import Log from '@libs/Log';
 import Navigation from '@libs/Navigation/Navigation';
 import {rand64} from '@libs/NumberUtils';
 import * as PersonalDetailsUtils from '@libs/PersonalDetailsUtils';
@@ -477,13 +476,6 @@ function assignWorkspaceCompanyCard(
         ],
     };
 
-    Log.info('[92089] assignWorkspaceCompanyCard API.write', false, {
-        assignmentDate: parameters.assignmentDate,
-        startDate: parameters.startDate,
-        email: parameters.email,
-        bankName: parameters.bankName,
-        cardName: parameters.cardName,
-    });
     API.write(WRITE_COMMANDS.ASSIGN_COMPANY_CARD, parameters, onyxData);
 }
 

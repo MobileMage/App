@@ -9,7 +9,6 @@ import Text from '@components/Text';
 import useLocalize from '@hooks/useLocalize';
 import useOnyx from '@hooks/useOnyx';
 import useThemeStyles from '@hooks/useThemeStyles';
-import Log from '@libs/Log';
 import {isRequiredFulfilled} from '@libs/ValidationUtils';
 import Navigation from '@navigation/Navigation';
 import {setAssignCardStepAndData} from '@userActions/CompanyCards';
@@ -28,8 +27,6 @@ function AssignmentDateStep() {
     const [localAssignmentDate, setLocalAssignmentDate] = useState<string>();
     const assignmentDate = localAssignmentDate ?? cardToAssign?.assignmentDate ?? format(new Date(), CONST.DATE.FNS_FORMAT_STRING);
 
-    Log.info('[92089] AssignmentDateStep render', false, {isEditing, persistedAssignmentDate: cardToAssign?.assignmentDate, localAssignmentDate, effectiveAssignmentDate: assignmentDate});
-
     const handleBackButtonPress = () => {
         if (isEditing) {
             setAssignCardStepAndData({isEditing: false});
@@ -38,7 +35,6 @@ function AssignmentDateStep() {
     };
 
     const submit = () => {
-        Log.info('[92089] AssignmentDateStep submit', false, {assignmentDate, isEditing});
         if (!isRequiredFulfilled(assignmentDate)) {
             setErrorText(translate('common.error.fieldRequired'));
             return;
@@ -71,7 +67,6 @@ function AssignmentDateStep() {
                         value={assignmentDate}
                         label={translate('workspace.companyCards.assignmentDate')}
                         onInputChange={(value) => {
-                            Log.info('[92089] AssignmentDateStep date change', false, {value});
                             if (!isRequiredFulfilled(value)) {
                                 setErrorText(translate('common.error.fieldRequired'));
                             } else {

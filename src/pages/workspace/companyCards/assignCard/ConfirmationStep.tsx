@@ -20,7 +20,6 @@ import useThemeStyles from '@hooks/useThemeStyles';
 import useWorkspaceAccountID from '@hooks/useWorkspaceAccountID';
 import {getCompanyCardFeed, getDomainOrWorkspaceAccountID, getPlaidCountry, getPlaidInstitutionId, isCardAlreadyAssigned, isSelectedFeedExpired, maskCardNumber} from '@libs/CardUtils';
 import {getMicroSecondOnyxErrorWithTranslationKey} from '@libs/ErrorUtils';
-import Log from '@libs/Log';
 import type {PlatformStackScreenProps} from '@libs/Navigation/PlatformStackNavigation/types';
 import type {SettingsNavigatorParamList} from '@libs/Navigation/types';
 import {getPersonalDetailByEmail} from '@libs/PersonalDetailsUtils';
@@ -122,12 +121,6 @@ function ConfirmationStep({route}: ConfirmationStepProps) {
             return;
         }
 
-        Log.info('[92089] ConfirmationStep submit', false, {
-            assignmentDate: cardToAssign?.assignmentDate,
-            startDate: cardToAssign?.startDate,
-            customCardName: cardToAssign?.customCardName,
-            email: cardToAssign?.email,
-        });
         assignWorkspaceCompanyCard(policy, domainOrWorkspaceAccountID, translate, {...cardToAssign, cardholder, bankName}, currentUserAccountID);
     };
 
