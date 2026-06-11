@@ -245,6 +245,8 @@ function RightModalNavigator({navigation, route}: RightModalNavigatorProps) {
                                 component={ModalStackNavigators.TwoFactorAuthenticatorStackNavigator}
                                 listeners={{
                                     beforeRemove: () => {
+                                        // eslint-disable-next-line no-console
+                                        console.log('[BUG92564] TWO_FACTOR_AUTH RHP beforeRemove FIRED', {url: typeof window !== 'undefined' ? window.location.href : 'n/a'});
                                         TransitionTracker.runAfterTransitions({callback: () => clearTwoFactorAuthData(true), waitForUpcomingTransition: true});
                                     },
                                 }}

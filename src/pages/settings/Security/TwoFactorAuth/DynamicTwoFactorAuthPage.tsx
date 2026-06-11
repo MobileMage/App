@@ -181,11 +181,40 @@ function DynamicTwoFactorAuthPage() {
                             isDisabled={!isUserValidated}
                             text={translate('twoFactorAuth.downloadCodes')}
                             onPress={() => {
+                                // [BUG92564] Patch history methods once so we can see who calls go/pushState/replaceState.
+                                const w = window as unknown as {__BUG92564_PATCHED__?: boolean; __BUG92564_FIX__?: boolean; history: History};
+                                if (!w.__BUG92564_PATCHED__) {
+                                    w.__BUG92564_PATCHED__ = true;
+                                    const h = w.history;
+                                    const orig = {go: h.go.bind(h), pushState: h.pushState.bind(h), replaceState: h.replaceState.bind(h)};
+                                    h.go = function (n?: number) {
+                                        // eslint-disable-next-line no-console
+                                        console.log('[BUG92564] history.go CALLED', {n, stack: new Error('trace').stack});
+                                        return orig.go(n);
+                                    };
+                                    h.pushState = function (...args: Parameters<History['pushState']>) {
+                                        // eslint-disable-next-line no-console
+                                        console.log('[BUG92564] history.pushState', {url: args[2]});
+                                        return orig.pushState(...args);
+                                    };
+                                    h.replaceState = function (...args: Parameters<History['replaceState']>) {
+                                        // eslint-disable-next-line no-console
+                                        console.log('[BUG92564] history.replaceState', {url: args[2]});
+                                        return orig.replaceState(...args);
+                                    };
+                                }
+                                // eslint-disable-next-line no-console
+                                console.log('[BUG92564] T+0 click', {url: window.location.href, codesAreCopied: account?.codesAreCopied, fixEnabled: !!w.__BUG92564_FIX__});
                                 localFileDownload(TWO_FACTOR_AUTH_RECOVERY_CODES_FILENAME, recoveryCodes, translate, undefined, undefined, false);
                                 setError('');
                                 setCodesAreCopied();
                                 announceStatus(translate('fileDownload.success.title'));
-                                Navigation.navigate(createDynamicRoute(DYNAMIC_ROUTES.TWO_FACTOR_AUTH_VERIFY.path, backPath), {forceReplace: true});
+                                // Toggle: window.__BUG92564_FIX__ = true in the console -> PUSH (the fix); default/unset -> forceReplace (the bug).
+                                // eslint-disable-next-line no-console
+                                console.log('[BUG92564] T+1 about to navigate(VERIFY)', {fix: !!w.__BUG92564_FIX__});
+                                Navigation.navigate(createDynamicRoute(DYNAMIC_ROUTES.TWO_FACTOR_AUTH_VERIFY.path, backPath), w.__BUG92564_FIX__ ? undefined : {forceReplace: true});
+                                // eslint-disable-next-line no-console
+                                console.log('[BUG92564] T+2 after navigate dispatched', {url: window.location.href});
                             }}
                         />
                     )}
