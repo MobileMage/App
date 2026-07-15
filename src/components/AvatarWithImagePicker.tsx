@@ -7,6 +7,7 @@ import useThemeStyles from '@hooks/useThemeStyles';
 import {validateAvatarImage} from '@libs/AvatarUtils';
 import {isSafari} from '@libs/Browser';
 import type {CustomRNImageManipulatorResult} from '@libs/cropOrRotateImage/types';
+import prepareAvatarImage from '@libs/prepareAvatarImage';
 
 import CONST from '@src/CONST';
 import type {TranslationPaths} from '@src/languages/types';
@@ -143,17 +144,19 @@ function AvatarWithImagePicker({
      * Validates an image and opens avatar crop modal if valid
      */
     const showAvatarCropModal = (image: FileObject) => {
-        validateAvatarImage(image)
-            .then((validationResult) => {
-                if (!validationResult.isValid) {
-                    setError(validationResult.errorKey ?? null, validationResult.errorParams ?? {});
-                    return;
-                }
+        prepareAvatarImage(image)
+            .then((preparedImage) =>
+                validateAvatarImage(preparedImage).then((validationResult) => {
+                    if (!validationResult.isValid) {
+                        setError(validationResult.errorKey ?? null, validationResult.errorParams ?? {});
+                        return;
+                    }
 
-                setError(null, {});
-                setIsMenuVisible(false);
-                openCropper(image);
-            })
+                    setError(null, {});
+                    setIsMenuVisible(false);
+                    openCropper(preparedImage);
+                }),
+            )
             .catch(() => {
                 setError('attachmentPicker.errorWhileSelectingCorruptedAttachment', {});
             });

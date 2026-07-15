@@ -13,6 +13,7 @@ import useThemeStyles from '@hooks/useThemeStyles';
 import {USER_AVATARS} from '@libs/Avatars/UserAvatarCatalog';
 import {validateAvatarImage} from '@libs/AvatarUtils';
 import type {CustomRNImageManipulatorResult} from '@libs/cropOrRotateImage/types';
+import prepareAvatarImage from '@libs/prepareAvatarImage';
 import type {AvatarSource} from '@libs/UserAvatarUtils';
 import {getDefaultAvatarURL, isCatalogAvatar, isGeneratedLetterAvatarURL, isLetterAvatar} from '@libs/UserAvatarUtils';
 
@@ -91,16 +92,18 @@ function AvatarPreview({selected, isRemoved, onImageRemoved, avatarCaptureRef, i
      * Validates an image and opens avatar crop modal if valid
      */
     const showAvatarCropModal = (image: FileObject) => {
-        validateAvatarImage(image)
-            .then((validationResult) => {
-                if (!validationResult.isValid) {
-                    setError(validationResult.errorKey ?? null, validationResult.errorParams ?? {});
-                    return;
-                }
+        prepareAvatarImage(image)
+            .then((preparedImage) =>
+                validateAvatarImage(preparedImage).then((validationResult) => {
+                    if (!validationResult.isValid) {
+                        setError(validationResult.errorKey ?? null, validationResult.errorParams ?? {});
+                        return;
+                    }
 
-                setError(null, {});
-                openCropper(image);
-            })
+                    setError(null, {});
+                    openCropper(preparedImage);
+                }),
+            )
             .catch(() => {
                 setError('attachmentPicker.errorWhileSelectingCorruptedAttachment', {});
             });

@@ -22,6 +22,7 @@ import type {CustomRNImageManipulatorResult} from '@libs/cropOrRotateImage/types
 import Navigation from '@libs/Navigation/Navigation';
 import type {PlatformStackScreenProps} from '@libs/Navigation/PlatformStackNavigation/types';
 import type {SettingsNavigatorParamList} from '@libs/Navigation/types';
+import prepareAvatarImage from '@libs/prepareAvatarImage';
 import type {AvatarSource} from '@libs/UserAvatarUtils';
 
 import {updateAgentAvatar} from '@userActions/Agent';
@@ -101,15 +102,17 @@ function EditAgentAvatarContent({accountID, fallbackRoute, onSave, initialPreset
     const {openCropper} = useAvatarCrop({buttonLabelKey: 'avatarPage.upload', onCropped: onImageSelected});
 
     const showAvatarCropModal = (image: FileObject) => {
-        validateAvatarImage(image)
-            .then((result) => {
-                if (!result.isValid) {
-                    setErrorData({validationError: result.errorKey ?? null, phraseParam: result.errorParams ?? {}});
-                    return;
-                }
-                setErrorData({validationError: null, phraseParam: {}});
-                openCropper(image);
-            })
+        prepareAvatarImage(image)
+            .then((preparedImage) =>
+                validateAvatarImage(preparedImage).then((result) => {
+                    if (!result.isValid) {
+                        setErrorData({validationError: result.errorKey ?? null, phraseParam: result.errorParams ?? {}});
+                        return;
+                    }
+                    setErrorData({validationError: null, phraseParam: {}});
+                    openCropper(preparedImage);
+                }),
+            )
             .catch(() => {
                 setErrorData({validationError: 'attachmentPicker.errorWhileSelectingCorruptedAttachment', phraseParam: {}});
             });
