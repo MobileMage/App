@@ -31,6 +31,13 @@ const prepareAvatarImage: PrepareAvatarImage = async (image) => {
         return image;
     }
 
+    // The size and resolution limits keep applying to the picked file itself, exactly as they do on
+    // web. An SVG that breaks either limit is returned unchanged so validateAvatarImage rejects it
+    // with the standard error, and nothing oversized is read into memory or rasterized.
+    if ((image.size ?? 0) >= CONST.AVATAR_MAX_ATTACHMENT_SIZE) {
+        return image;
+    }
+
     const svgXML = await fetch(image.uri).then((response) => response.text());
     const svg = Skia.SVG.MakeFromString(svgXML);
     if (!svg) {
@@ -41,14 +48,15 @@ const prepareAvatarImage: PrepareAvatarImage = async (image) => {
     let snapshot = null;
     try {
         // Rasterize at the intrinsic size so a genuinely undersized vector still fails the
-        // minimum-resolution check the same way it does on web, and cap at the avatar maximum
-        // so an oversized canvas cannot fail validation or exhaust memory.
+        // minimum-resolution check the same way it does on web.
         const intrinsicWidth = svg.width();
         const intrinsicHeight = svg.height();
         const hasIntrinsicSize = intrinsicWidth > 0 && intrinsicHeight > 0;
-        const scale = hasIntrinsicSize ? Math.min(1, CONST.AVATAR_MAX_WIDTH_PX / intrinsicWidth, CONST.AVATAR_MAX_HEIGHT_PX / intrinsicHeight) : 1;
-        const width = hasIntrinsicSize ? Math.max(1, Math.round(intrinsicWidth * scale)) : DEFAULT_RASTER_SIZE;
-        const height = hasIntrinsicSize ? Math.max(1, Math.round(intrinsicHeight * scale)) : DEFAULT_RASTER_SIZE;
+        if (hasIntrinsicSize && (intrinsicWidth > CONST.AVATAR_MAX_WIDTH_PX || intrinsicHeight > CONST.AVATAR_MAX_HEIGHT_PX)) {
+            return image;
+        }
+        const width = hasIntrinsicSize ? Math.max(1, Math.round(intrinsicWidth)) : DEFAULT_RASTER_SIZE;
+        const height = hasIntrinsicSize ? Math.max(1, Math.round(intrinsicHeight)) : DEFAULT_RASTER_SIZE;
 
         surface = Skia.Surface.MakeOffscreen(width, height) ?? Skia.Surface.Make(width, height);
         if (!surface) {
@@ -57,7 +65,6 @@ const prepareAvatarImage: PrepareAvatarImage = async (image) => {
 
         const canvas = surface.getCanvas();
         if (hasIntrinsicSize) {
-            canvas.scale(scale, scale);
             canvas.drawSvg(svg);
         } else {
             // Without an intrinsic size the root SVG resolves percentage dimensions against the
