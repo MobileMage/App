@@ -8,6 +8,7 @@ import type BaseModalProps from '@components/Modal/types';
 import OfflineWithFeedback from '@components/OfflineWithFeedback';
 import PopoverWithMeasuredContent from '@components/PopoverWithMeasuredContent';
 import ScrollView from '@components/ScrollView';
+import SearchBar from '@components/SearchBar';
 import Text from '@components/Text';
 
 import useArrowKeyFocusManager from '@hooks/useArrowKeyFocusManager';
@@ -124,6 +125,18 @@ type PopoverMenuProps = Partial<ModalAnimationProps> & {
 
     /** Optional non-interactive text to display as a header for any create menu */
     headerText?: string;
+
+    /** Label for the search input. When set, a search input is rendered below the header and stays pinned while the list scrolls */
+    searchInputLabel?: string;
+
+    /** Value of the controlled search input */
+    searchInputValue?: string;
+
+    /** Callback fired when the search input's text changes */
+    onSearchInputChange?: (text: string) => void;
+
+    /** Whether to show the "no results found" empty state below the search input */
+    shouldShowSearchEmptyState?: boolean;
 
     /** Whether disable the animations */
     disableAnimation?: boolean;
@@ -311,6 +324,10 @@ function BasePopoverMenu({
     onModalShow,
     onModalHide,
     headerText,
+    searchInputLabel,
+    searchInputValue = '',
+    onSearchInputChange,
+    shouldShowSearchEmptyState = false,
     fromSidebarMediumScreen,
     shouldHandleNavigationBack,
     anchorAlignment = {
@@ -716,12 +733,24 @@ function BasePopoverMenu({
                         onLayout={onLayout}
                         style={[restMenuContainerStyle, restContainerStyles, isWeb ? styles.flex1 : styles.flexGrow1]}
                     >
+                        {!!searchInputLabel && enteredSubMenuIndexes.length === 0 && (
+                            <>
+                                {renderHeaderText()}
+                                <SearchBar
+                                    label={searchInputLabel}
+                                    inputValue={searchInputValue}
+                                    onChangeText={onSearchInputChange}
+                                    shouldShowEmptyState={shouldShowSearchEmptyState}
+                                    style={styles.mw100}
+                                />
+                            </>
+                        )}
                         <PopoverMenuContent
                             shouldUseScrollView={shouldUseScrollView}
                             contentContainerStyle={[scrollViewPaddingStyles, restScrollContainerStyle]}
                             addBottomSafeAreaPadding={enableEdgeToEdgeBottomSafeAreaPadding}
                         >
-                            {renderHeaderText()}
+                            {!searchInputLabel && renderHeaderText()}
                             {enteredSubMenuIndexes.length > 0 && renderBackButtonItem()}
                             {renderedMenuItems}
                         </PopoverMenuContent>
@@ -742,6 +771,9 @@ export default React.memo(
         deepEqual(prevProps.anchorPosition, nextProps.anchorPosition) &&
         prevProps.anchorRef === nextProps.anchorRef &&
         prevProps.headerText === nextProps.headerText &&
+        prevProps.searchInputLabel === nextProps.searchInputLabel &&
+        prevProps.searchInputValue === nextProps.searchInputValue &&
+        prevProps.shouldShowSearchEmptyState === nextProps.shouldShowSearchEmptyState &&
         prevProps.fromSidebarMediumScreen === nextProps.fromSidebarMediumScreen &&
         // eslint-disable-next-line rulesdir/no-deep-equal-in-memo -- anchorAlignment object is created inline in most usages
         deepEqual(prevProps.anchorAlignment, nextProps.anchorAlignment) &&

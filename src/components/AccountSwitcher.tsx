@@ -5,6 +5,7 @@ import useLocalize from '@hooks/useLocalize';
 import useNetwork from '@hooks/useNetwork';
 import useOnyx from '@hooks/useOnyx';
 import useResponsiveLayout from '@hooks/useResponsiveLayout';
+import useSearchResults from '@hooks/useSearchResults';
 import useTheme from '@hooks/useTheme';
 import useThemeStyles from '@hooks/useThemeStyles';
 import useWindowDimensions from '@hooks/useWindowDimensions';
@@ -15,6 +16,7 @@ import {getLatestError} from '@libs/ErrorUtils';
 import {getGpsPoints, stopGpsTrip} from '@libs/GPSDraftDetailsUtils';
 import {sortAlphabetically} from '@libs/OptionsListUtils';
 import {getPersonalDetailByEmail} from '@libs/PersonalDetailsUtils';
+import tokenizedSearch from '@libs/tokenizedSearch';
 
 import TextWithEmojiFragment from '@pages/inbox/report/comment/TextWithEmojiFragment';
 
@@ -160,6 +162,36 @@ function AccountSwitcher({isScreenFocused}: AccountSwitcherProps) {
         };
     };
 
+    const delegatorMenuItems: PopoverMenuItem[] = sortAlphabetically(
+        delegators
+            .filter(({email}) => email !== currentUserPersonalDetails.login)
+            .map(({email, role}) => {
+                const errorFields = account?.delegatedAccess?.errorFields ?? {};
+                const error = getLatestError(errorFields?.connect?.[email]);
+                const personalDetails = getPersonalDetailByEmail(email);
+                return createBaseMenuItem(personalDetails, error, {
+                    badgeText: translate('delegate.role', {role}),
+                    onSelected: () => {
+                        if (isOffline) {
+                            close(showOfflineModal);
+                            return;
+                        }
+                        if (isTrackingGPS) {
+                            close(() => showGpsInProgressModal(() => connect({email, delegatedAccess: account?.delegatedAccess, credentials, session, activePolicyID})));
+                            return;
+                        }
+                        connect({email, delegatedAccess: account?.delegatedAccess, credentials, session, activePolicyID});
+                    },
+                });
+            }),
+        'text',
+        localeCompare,
+    );
+
+    const filterDelegatorMenuItems = (item: PopoverMenuItem, searchTerm: string) => tokenizedSearch([item], searchTerm, (option) => [option.text, option.description ?? '']).length > 0;
+    const [searchInputValue, setSearchInputValue, filteredDelegatorMenuItems] = useSearchResults(delegatorMenuItems, filterDelegatorMenuItems);
+    const shouldShowSearchInput = !isActingAsDelegate && delegatorMenuItems.length >= CONST.STANDARD_LIST_ITEM_LIMIT;
+
     const menuItems = (): PopoverMenuItem[] => {
         const currentUserMenuItem = createBaseMenuItem(currentUserPersonalDetails, undefined, {isSelected: true});
 
@@ -194,33 +226,7 @@ function AccountSwitcher({isScreenFocused}: AccountSwitcherProps) {
             ];
         }
 
-        const delegatorMenuItems: PopoverMenuItem[] = sortAlphabetically(
-            delegators
-                .filter(({email}) => email !== currentUserPersonalDetails.login)
-                .map(({email, role}) => {
-                    const errorFields = account?.delegatedAccess?.errorFields ?? {};
-                    const error = getLatestError(errorFields?.connect?.[email]);
-                    const personalDetails = getPersonalDetailByEmail(email);
-                    return createBaseMenuItem(personalDetails, error, {
-                        badgeText: translate('delegate.role', {role}),
-                        onSelected: () => {
-                            if (isOffline) {
-                                close(showOfflineModal);
-                                return;
-                            }
-                            if (isTrackingGPS) {
-                                close(() => showGpsInProgressModal(() => connect({email, delegatedAccess: account?.delegatedAccess, credentials, session, activePolicyID})));
-                                return;
-                            }
-                            connect({email, delegatedAccess: account?.delegatedAccess, credentials, session, activePolicyID});
-                        },
-                    });
-                }),
-            'text',
-            localeCompare,
-        );
-
-        return [currentUserMenuItem, ...delegatorMenuItems];
+        return [currentUserMenuItem, ...filteredDelegatorMenuItems];
     };
 
     const hideDelegatorMenu = () => {
@@ -309,6 +315,10 @@ function AccountSwitcher({isScreenFocused}: AccountSwitcherProps) {
                     }}
                     menuItems={menuItems()}
                     headerText={translate('delegate.switchAccount')}
+                    searchInputLabel={shouldShowSearchInput ? translate('common.search') : undefined}
+                    searchInputValue={searchInputValue}
+                    onSearchInputChange={setSearchInputValue}
+                    shouldShowSearchEmptyState={shouldShowSearchInput && filteredDelegatorMenuItems.length === 0}
                     containerStyles={[{maxHeight: windowHeight / 2}, styles.mw100, shouldUseNarrowLayout ? {} : styles.wFitContent]}
                     headerStyles={styles.pt0}
                     innerContainerStyle={styles.pb0}
